@@ -7,7 +7,7 @@ export default abstract class Controller {
   protected sendSuccessResponse(
     res: Response,
     data: any,
-    statusCode: number = 200
+    statusCode: number = 200,
   ) {
     res.status(statusCode).json({ success: true, data });
   }
@@ -15,7 +15,7 @@ export default abstract class Controller {
   protected sendErrorResponse(
     res: Response,
     message: string,
-    statusCode: number = 500
+    statusCode: number = 500,
   ) {
     res.status(statusCode).json({ success: false, error: message });
   }
