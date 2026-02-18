@@ -35,4 +35,26 @@ export default class ProtocolController extends Controller {
 
     res.json(protocol);
   }
+
+  /**
+   * GET /protocols/closed/:id/snapshot
+   * Returns the generated ProtocolSnapshot for a CLOSED protocol.
+   * Fails if protocol is not closed or snapshot does not exist.
+   */
+  public getClosedSnapshot(req: Request, res: Response): void {
+    const id = paramStr(req.params.id);
+
+    const snapshot = protocolService.getSnapshotByProtocolId(id);
+
+    if (!snapshot) {
+      this.sendErrorResponse(
+        res,
+        "Snapshot not found or protocol not closed",
+        404,
+      );
+      return;
+    }
+
+    res.json(snapshot);
+  }
 }

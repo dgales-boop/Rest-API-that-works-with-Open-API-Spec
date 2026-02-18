@@ -5,6 +5,7 @@ import apiRoutes from "./Api/V1/Routes/api";
 import authMiddleware from "./Middleware/authMiddleware";
 import notFoundHandler from "./Middleware/notFoundHandler";
 import errorHandler from "./Middleware/errorHandler";
+import oauthRoutes from "./OAuth/oauthServer";
 
 const app = express();
 
@@ -12,6 +13,10 @@ const app = express();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Mock OAuth2 server (no auth required — this IS the auth server)
+app.use("/oauth", oauthRoutes);
 
 // JWT authentication for all API routes
 app.use("/api/v1", authMiddleware);

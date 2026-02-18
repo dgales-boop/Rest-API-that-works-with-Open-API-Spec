@@ -1,6 +1,7 @@
 import type { Site } from "../Models/Site";
 import type { Plant } from "../Models/Plant";
 import type { ClosedProtocol } from "../Models/ClosedProtocol";
+import type { ProtocolSnapshot } from "../Models/ProtocolSnapshot";
 
 export const sites: Site[] = [
   {
@@ -134,5 +135,125 @@ export const closedProtocols: ClosedProtocol[] = [
     date: "2024-03-20",
     owner: "inspector.mueller",
     status: "closed",
+  },
+];
+
+/**
+ * Snapshot data for closed protocols, matching the OpenAPI ProtocolSnapshot schema.
+ * Each snapshot is keyed by the corresponding ClosedProtocol id.
+ */
+export const protocolSnapshots: ProtocolSnapshot[] = [
+  {
+    protocolId: "1",
+    powerplantId: "plant-1",
+    protocolBriefcaseId: "BRIEF-01",
+    templateName: {
+      en: "Monthly Safety Inspection",
+      de: "Monatliche Sicherheitsinspektion",
+    },
+    name: "Monthly Safety Inspection - January",
+    date: 1706659200, // 2024-01-31
+    time: "09:00",
+    status: "closed",
+    reportId: "REP-1001",
+    reports: [],
+    owner: "inspector.mueller",
+    topics: [
+      {
+        topicId: "topic-1",
+        title: { en: "Fire Extinguishers", de: "Feuerlöscher" },
+        result: "pass",
+      },
+      {
+        topicId: "topic-2",
+        title: { en: "Emergency Exits", de: "Notausgänge" },
+        result: "pass",
+      },
+    ],
+  },
+  {
+    protocolId: "2",
+    powerplantId: "plant-2",
+    protocolBriefcaseId: "BRIEF-02",
+    templateName: {
+      en: "Equipment Calibration",
+      de: "Gerätekalibrierung",
+    },
+    name: "Equipment Calibration Report - Q1",
+    date: 1711843200, // 2024-03-31
+    time: "14:30",
+    status: "closed",
+    reportId: "REP-2001",
+    reports: [],
+    owner: "tech.schmidt",
+    topics: [
+      {
+        topicId: "topic-3",
+        title: { en: "Sensor Accuracy", de: "Sensorgenauigkeit" },
+        result: "pass",
+      },
+    ],
+  },
+  {
+    protocolId: "3",
+    powerplantId: "plant-3",
+    protocolBriefcaseId: null,
+    templateName: {
+      en: "Paint Quality Audit",
+      de: "Lackqualitätsprüfung",
+    },
+    name: "Paint Quality Audit - February",
+    date: 1709078400, // 2024-02-28
+    time: "10:15",
+    status: "closed",
+    reportId: "REP-3001",
+    reports: [],
+    owner: "auditor.weber",
+    topics: [],
+  },
+  {
+    protocolId: "4",
+    powerplantId: "plant-4",
+    protocolBriefcaseId: "BRIEF-04",
+    templateName: {
+      en: "Fire Safety Drill",
+      de: "Brandschutzübung",
+    },
+    name: "Fire Safety Drill Report",
+    date: 1713139200, // 2024-04-15
+    time: null,
+    status: "closed",
+    reportId: null,
+    reports: [],
+    owner: "safety.fischer",
+    topics: [
+      {
+        topicId: "topic-4",
+        title: { en: "Evacuation Time", de: "Evakuierungszeit" },
+        result: "acceptable",
+      },
+      {
+        topicId: "topic-5",
+        title: { en: "Assembly Point", de: "Sammelplatz" },
+        result: "pass",
+      },
+    ],
+  },
+  {
+    protocolId: "5",
+    powerplantId: "plant-1",
+    protocolBriefcaseId: "BRIEF-05",
+    templateName: {
+      en: "Electrical Systems Inspection",
+      de: "Elektrosysteminspektion",
+    },
+    name: "Electrical Systems Inspection - March",
+    date: 1710892800, // 2024-03-20
+    time: "08:00",
+    status: "closed",
+    reportId: "REP-5001",
+    reports: [],
+    owner: "inspector.mueller",
+    topics: [],
   },
 ];
