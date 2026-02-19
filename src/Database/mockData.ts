@@ -1,7 +1,6 @@
 import type { Site } from "../Models/Site";
 import type { Plant } from "../Models/Plant";
-import type { ClosedProtocol } from "../Models/ClosedProtocol";
-import type { ProtocolSnapshot } from "../Models/ProtocolSnapshot";
+import type { InternalClosedProtocol, InternalProtocolSnapshot } from "../Models/internal";
 
 export const sites: Site[] = [
   {
@@ -80,7 +79,7 @@ export const plants: Plant[] = [
   },
 ];
 
-export const closedProtocols: ClosedProtocol[] = [
+export const closedProtocols: InternalClosedProtocol[] = [
   {
     id: "1",
     siteId: "site-1",
@@ -150,7 +149,7 @@ export const closedProtocols: ClosedProtocol[] = [
  *   - reportId, language  : required
  *   - variantName, fileName, isOld, creationDate : optional
  */
-export const protocolSnapshots: ProtocolSnapshot[] = [
+export const protocolSnapshots: InternalProtocolSnapshot[] = [
   {
     protocolId: "1",
     powerplantId: "plant-1",

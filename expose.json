@@ -1,0 +1,47 @@
+
+
+
+
+
+
+{
+  "ProtocolSnapshotPublic": {
+    "protocolId": "PROT-1001",
+    "powerplantId": "plant-1",
+    "templateName": {
+      "en": "Monthly Safety Inspection",
+      "de": "Monatliche Sicherheitsinspektion"
+    },
+    "protocol": {
+      "name": "Monthly Safety Inspection - January 2024",
+      "date": 1706659200,
+      "status": "closed"
+    },
+    "reports": [
+      {
+        "id": "REP-1001",
+        "file": "safety-inspection.pdf",
+        "lang": "en"
+      }
+    ],
+    "topics": [
+      {
+        "name": {
+          "en": "Fire Extinguishers"
+        },
+        "items": [
+          {
+            "name": {
+              "en": "Extinguisher count verification"
+            },
+            "value": {
+              "measured": 12,
+              "required": 10,
+              "result": "ok"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

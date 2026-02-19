@@ -1,11 +1,12 @@
+/**
+ * Public ClosedProtocol — matches the OpenAPI ClosedProtocol schema.
+ */
 export interface ClosedProtocol {
   id: string;
-  siteId: string;
   plantId: string;
-  level1: string;
   name: string;
-  basedOn: string;
+  template?: string;
   date: string;
-  owner: string;
+  owner?: string;
   status: "closed";
 }

@@ -59,6 +59,7 @@ ProtocolSnapshot
         ├── creatorPublicParticipantId  string?
         └── data         object   (flexible key-value payload, default {})
 ```
+---
 
 ### Security
 
