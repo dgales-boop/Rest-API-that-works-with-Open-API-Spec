@@ -71,19 +71,6 @@ The spec supports two ways to authorize:
 
 ---
 
-## Entity Definitions
-
-The `entity/` folder is the **source of truth** for all data shapes. The TypeScript models in `src/Models/` and the schemas in `openapi.yaml` are both derived from these files.
-
-```
-entity/
-├── protocolSnapshot.json       root entity (isEntity: true)
-├── protocolTopicSnapshot.json  embedded value object
-├── protocolItemSnapshot.json   embedded value object
-└── report.json                 embedded value object
-```
-
----
 
 ## Folder Structure
 
