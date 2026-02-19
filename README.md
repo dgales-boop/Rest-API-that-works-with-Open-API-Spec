@@ -1,166 +1,149 @@
-# Reportheld Read-Only API
+# Protocol Snapshot API
 
-Read-only REST API for **Sites**, **Plants**, and **Closed Protocols**.  
-Built with Express 5 + TypeScript. Secured with JWT Bearer authentication.
+A read-only REST API for **Closed Protocols** and their **Snapshots**, built with Express 5 + TypeScript and documented with an **OpenAPI 3.0.3 specification**.
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Configure environment
-# Edit .env if needed (defaults work out of the box)
-
-# 3. Start dev server (hot reload)
-npm run dev
-
-# 4. Generate a JWT token for testing
-npm run generate-token
-
-# 5. Use the token in requests
-curl -H "Authorization: Bearer <token>" http://localhost:3000/api/v1/sites
+npm run dev          # starts at http://localhost:3000
+npm run generate-token   # prints a JWT for testing with curl / Postman
 ```
 
 ---
 
-## API Endpoints
+## OpenAPI Specification
 
-All endpoints require `Authorization: Bearer <token>` header.
+**File:** [`openapi.yaml`](openapi.yaml)  
+**View interactively:** paste the file into [Swagger Editor](https://editor.swagger.io)
 
-| Method | Endpoint                       | Description                |
-| ------ | ------------------------------ | -------------------------- |
-| `GET`  | `/api/v1/sites`                | List all sites             |
-| `GET`  | `/api/v1/plants`               | List all plants            |
-| `GET`  | `/api/v1/protocols/closed`     | List all closed protocols  |
-| `GET`  | `/api/v1/protocols/closed/:id` | Get single closed protocol |
+### Endpoints
 
-Full spec: see [`openapi.json`](openapi.json)
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/protocols/closed` | List all closed protocols |
+| `GET` | `/protocols/closed/{id}` | Get a single closed protocol by ID |
+| `GET` | `/protocols/closed/{id}/snapshot` | Get the full computed snapshot for a closed protocol |
+
+> A **snapshot** is only generated for a protocol with `status: "closed"`. It contains the complete payload — topics, checklist items, computed data, and attached reports — at the time the protocol was closed.
+
+### Schema hierarchy
+
+```
+ProtocolSnapshot
+├── protocolId           string   (required)
+├── powerplantId         string   (required)
+├── protocolBriefcaseId  string?
+├── templateName         LocalizedString   { "en": "...", "de": "..." }
+├── name                 string   (required)
+├── date                 integer  (Unix timestamp)
+├── time                 string   HH:mm
+├── status               string   default "none"
+├── reportId             string?
+├── owner                string   (required)
+│
+├── reports[]            Report
+│   ├── reportId         string   (required)
+│   ├── language         string   (required)
+│   ├── variantName      string?
+│   ├── fileName         string?
+│   ├── isOld            boolean?
+│   └── creationDate     integer? (Unix timestamp)
+│
+└── topics[]             ProtocolTopicSnapshot
+    ├── name             LocalizedString   (required)
+    └── items[]          ProtocolItemSnapshot
+        ├── name         LocalizedString   (required)
+        ├── creatorPublicParticipantId  string?
+        └── data         object   (flexible key-value payload, default {})
+```
+
+### Security
+
+The spec supports two ways to authorize:
+
+| Scheme | Type | How to use |
+|--------|------|------------|
+| `OAuth2` | Authorization Code | Click **Authorize** in Swagger Editor — opens the mock Microsoft sign-in page |
+| `BearerAuth` | JWT Bearer | Run `npm run generate-token`, paste the token into the `Authorization` header |
 
 ---
 
-## Authentication
+## Entity Definitions
 
-The API uses **JWT Bearer tokens**. The signing secret is configured in `.env`.
-
-```bash
-# Generate a test token (valid 24h)
-npm run generate-token
-```
-
-**In Swagger UI:**
-
-1. Click **Authorize**
-2. Paste the generated token (no "Bearer" prefix needed)
-3. Click **Authorize** → **Close**
-
-**In curl / Postman:**
+The `entity/` folder is the **source of truth** for all data shapes. The TypeScript models in `src/Models/` and the schemas in `openapi.yaml` are both derived from these files.
 
 ```
-Authorization: Bearer eyJhbGciOi...
+entity/
+├── protocolSnapshot.json       root entity (isEntity: true)
+├── protocolTopicSnapshot.json  embedded value object
+├── protocolItemSnapshot.json   embedded value object
+└── report.json                 embedded value object
 ```
-
-> `JWT_SECRET` in `.env` is the **signing key** — never send it as a token.
 
 ---
 
-## Project Structure
+## Folder Structure
 
 ```
-├── .env                          # Environment variables (PORT, JWT_SECRET)
-├── openapi.json                  # OpenAPI 3.0.3 specification
-├── package.json
-├── tsconfig.json
-├── scripts/
-│   ├── generateToken.ts          # JWT token generator for testing
-│   └── paghimo.ts                # Scaffolding tool (controller/route generator)
+├── openapi.yaml                         OpenAPI 3.0.3 spec
+├── entity/                              Source-of-truth entity definitions
+├── mock/
+│   └── protocolSnapshot.mock.json       Standalone reference mock payload
 └── src/
-    ├── App.ts                    # Express app setup, middleware, route mounting
-    ├── Server.ts                 # HTTP server entry point
-    ├── Config/
-    │   └── index.ts              # Environment config (dotenv)
-    ├── Database/
-    │   └── mockData.ts           # In-memory mock data (sites, plants, protocols)
+    ├── App.ts                           Express app + middleware
+    ├── Server.ts                        HTTP server entry point
+    ├── Config/index.ts                  PORT, JWT_SECRET
+    ├── Database/mockData.ts             In-memory mock data
     ├── Middleware/
-    │   ├── authMiddleware.ts     # JWT validation (401 on missing/invalid/expired)
-    │   ├── errorHandler.ts       # Centralized error handler (500)
-    │   └── notFoundHandler.ts    # 404 catch-all for unmatched routes
-    ├── Models/
-    │   ├── Site.ts               # Site interface
-    │   ├── Plant.ts              # Plant interface
-    │   └── ClosedProtocol.ts     # ClosedProtocol interface
-    └── Api/
-        └── V1/
-            ├── Controllers/
-            │   ├── Controller.ts          # Abstract base (shared response helpers)
-            │   ├── SiteController.ts
-            │   ├── PlantController.ts
-            │   ├── ProtocolController.ts
-            │   ├── UserController.ts      # (existing)
-            │   └── TestController.ts      # (existing)
-            ├── Services/
-            │   ├── SiteService.ts
-            │   ├── PlantService.ts
-            │   └── ProtocolService.ts
-            └── Routes/
-                ├── api.ts                 # Route aggregator (mounted at /api/v1)
-                ├── siteRoutes.ts
-                ├── plantRoutes.ts
-                ├── protocolRoutes.ts
-                ├── userRoutes.ts          # (existing)
-                └── testRoutes.ts          # (existing)
+    │   ├── authMiddleware.ts            JWT validation
+    │   ├── errorHandler.ts              500 handler
+    │   └── notFoundHandler.ts           404 handler
+    ├── Models/                          TypeScript interfaces
+    │   ├── ProtocolSnapshot.ts          LocalizedString, Report,
+    │   │                                ProtocolItemSnapshot,
+    │   │                                ProtocolTopicSnapshot, ProtocolSnapshot
+    │   ├── ClosedProtocol.ts
+    │   ├── Plant.ts
+    │   └── Site.ts
+    ├── OAuth/
+    │   └── oauthServer.ts               Mock Microsoft OAuth2 server
+    └── Api/V1/
+        ├── Controllers/
+        │   ├── Controller.ts            Abstract base
+        │   ├── ProtocolController.ts
+        │   ├── PlantController.ts
+        │   └── SiteController.ts
+        ├── Services/
+        │   ├── ProtocolService.ts
+        │   ├── PlantService.ts
+        │   └── SiteService.ts
+        └── Routes/
+            ├── api.ts                   Mounts all routers at /api/v1
+            ├── protocolRoutes.ts
+            ├── plantRoutes.ts
+            └── siteRoutes.ts
 ```
-
----
-
-## Architecture
-
-```
-Request → CORS → Morgan → JSON Parser → Auth Middleware → Routes
-                                                            ↓
-                                                       Controller
-                                                            ↓
-                                                        Service
-                                                            ↓
-                                                     Mock Database
-```
-
-**Layers:**
-
-- **Routes** — define endpoints, bind to controller methods
-- **Controllers** — handle request/response, delegate to services
-- **Services** — business logic, data access abstraction
-- **Middleware** — auth, error handling, logging (reusable, composable)
-
----
-
-## NPM Scripts
-
-| Script           | Command                        | Description               |
-| ---------------- | ------------------------------ | ------------------------- |
-| `dev`            | `tsx watch src/Server.ts`      | Start with hot reload     |
-| `start`          | `tsx src/Server.ts`            | Start without watch       |
-| `generate-token` | `tsx scripts/generateToken.ts` | Generate JWT for testing  |
-| `paghimo`        | `tsx scripts/paghimo.ts`       | Scaffold controller/route |
 
 ---
 
 ## Environment Variables
 
-| Variable     | Default | Description                                 |
-| ------------ | ------- | ------------------------------------------- |
-| `PORT`       | `3000`  | Server port                                 |
-| `JWT_SECRET` | —       | Secret key for signing/verifying JWT tokens |
+```env
+PORT=3000
+JWT_SECRET=your-secret-key-here
+```
 
 ---
 
 ## Tech Stack
 
-- **Runtime:** Node.js
-- **Framework:** Express 5
-- **Language:** TypeScript (ESM)
-- **Auth:** jsonwebtoken
-- **Dev runner:** tsx (no build step needed)
-- **Other:** cors, morgan, dotenv
+| | |
+|---|---|
+| Framework | Express 5 |
+| Language | TypeScript 5 (ESM, strict) |
+| API Spec | OpenAPI 3.0.3 |
+| Auth | jsonwebtoken (HS256) |
+| Dev runner | tsx |
