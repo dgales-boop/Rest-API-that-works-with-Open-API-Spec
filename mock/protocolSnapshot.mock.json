@@ -1,0 +1,152 @@
+{
+  "protocolId": "PROT-1001",
+  "powerplantId": "plant-1",
+  "protocolBriefcaseId": "BRIEF-01",
+  "templateName": {
+    "en": "Monthly Safety Inspection",
+    "de": "Monatliche Sicherheitsinspektion"
+  },
+  "name": "Monthly Safety Inspection - January 2024",
+  "date": 1706659200,
+  "time": "09:00",
+  "status": "closed",
+  "reportId": "REP-1001",
+  "reports": [
+    {
+      "reportId": "REP-1001",
+      "variantName": "standard",
+      "fileName": "safety-inspection-jan-2024.pdf",
+      "language": "en",
+      "isOld": false,
+      "creationDate": 1706745600
+    },
+    {
+      "reportId": "REP-1001-DE",
+      "variantName": "standard",
+      "fileName": "sicherheitsinspektion-jan-2024.pdf",
+      "language": "de",
+      "isOld": false,
+      "creationDate": 1706745600
+    }
+  ],
+  "owner": "inspector.mueller",
+  "topics": [
+    {
+      "name": {
+        "en": "Fire Extinguishers",
+        "de": "Feuerlöscher"
+      },
+      "items": [
+        {
+          "name": {
+            "en": "Extinguisher count verification",
+            "de": "Anzahl Feuerlöscher prüfen"
+          },
+          "creatorPublicParticipantId": "participant-001",
+          "data": {
+            "value": 12,
+            "required": 10,
+            "status": "ok",
+            "notes": "All extinguishers are mounted and accessible."
+          }
+        },
+        {
+          "name": {
+            "en": "Expiry date check",
+            "de": "Ablaufdatum prüfen"
+          },
+          "creatorPublicParticipantId": "participant-001",
+          "data": {
+            "allValid": true,
+            "nextExpiry": "2025-06",
+            "status": "ok"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Emergency Exits",
+        "de": "Notausgänge"
+      },
+      "items": [
+        {
+          "name": {
+            "en": "Exit signage visible",
+            "de": "Notausgangsbeschilderung sichtbar"
+          },
+          "creatorPublicParticipantId": "participant-002",
+          "data": {
+            "status": "ok",
+            "count": 6
+          }
+        },
+        {
+          "name": {
+            "en": "Exit routes unobstructed",
+            "de": "Fluchtwege frei"
+          },
+          "creatorPublicParticipantId": "participant-002",
+          "data": {
+            "status": "ok",
+            "obstaclesFound": false
+          }
+        },
+        {
+          "name": {
+            "en": "Emergency lighting functional",
+            "de": "Notbeleuchtung funktionsfähig"
+          },
+          "creatorPublicParticipantId": "participant-001",
+          "data": {
+            "status": "warning",
+            "notes": "One unit in corridor B requires battery replacement."
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Personal Protective Equipment",
+        "de": "Persönliche Schutzausrüstung"
+      },
+      "items": [
+        {
+          "name": {
+            "en": "Helmets available and in good condition",
+            "de": "Helme vorhanden und in gutem Zustand"
+          },
+          "creatorPublicParticipantId": "participant-003",
+          "data": {
+            "status": "ok",
+            "quantity": 24,
+            "defective": 0
+          }
+        },
+        {
+          "name": {
+            "en": "Safety vests count",
+            "de": "Sicherheitswesten Anzahl"
+          },
+          "creatorPublicParticipantId": "participant-003",
+          "data": {
+            "status": "ok",
+            "quantity": 30
+          }
+        },
+        {
+          "name": {
+            "en": "First aid kit inspection",
+            "de": "Erste-Hilfe-Kasten Kontrolle"
+          },
+          "creatorPublicParticipantId": "participant-002",
+          "data": {
+            "status": "ok",
+            "completeness": "full",
+            "lastRestocked": 1704067200
+          }
+        }
+      ]
+    }
+  ]
+}

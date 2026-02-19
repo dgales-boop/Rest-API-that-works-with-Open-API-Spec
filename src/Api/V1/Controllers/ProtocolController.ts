@@ -12,7 +12,7 @@ function paramStr(val: string | string[] | undefined): string {
 export default class ProtocolController extends Controller {
   /**
    * GET /protocols/closed
-   * Returns array of closed protocols per OpenAPI spec.
+   * Returns array of all closed protocols.
    */
   public listClosed(_req: Request, res: Response): void {
     const protocols = protocolService.getAll();

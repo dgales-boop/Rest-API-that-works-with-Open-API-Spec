@@ -1,26 +1,45 @@
 /**
- * Language-keyed string values (e.g. { en: "...", de: "..." }).
+ * Language-keyed string map (e.g. { en: "...", de: "..." }).
+ * Matches LocalizedString usage across all snapshot entities.
  */
 export interface LocalizedString {
   [languageCode: string]: string;
 }
 
 /**
- * Report entity — structure depends on actual Report definition.
+ * Report entity matching Report.json entity definition.
  */
 export interface Report {
-  [key: string]: unknown;
+  reportId: string;
+  variantName?: string;
+  fileName?: string;
+  language: string;
+  isOld?: boolean;
+  creationDate?: number; // UnixOffset timestamp
 }
 
 /**
- * Protocol topic snapshot — structure depends on topic definition.
+ * Snapshot of a single checklist item within a protocol topic.
+ * Matches ProtocolItemSnapshot.json entity definition.
+ */
+export interface ProtocolItemSnapshot {
+  name: LocalizedString;
+  creatorPublicParticipantId?: string;
+  data?: Record<string, unknown>; // flexible payload, defaults to {}
+}
+
+/**
+ * Snapshot of a topic (section) within a protocol.
+ * Matches ProtocolTopicSnapshot.json entity definition.
  */
 export interface ProtocolTopicSnapshot {
-  [key: string]: unknown;
+  name: LocalizedString;
+  items: ProtocolItemSnapshot[];
 }
 
 /**
- * ProtocolSnapshot entity matching the OpenAPI protocolSnapshot schema.
+ * Complete computed snapshot of a closed protocol.
+ * Matches ProtocolSnapshot.json entity definition.
  */
 export interface ProtocolSnapshot {
   protocolId: string;
@@ -30,7 +49,7 @@ export interface ProtocolSnapshot {
   name: string;
   date?: number; // UnixOffset timestamp
   time?: string | null; // HH:mm pattern
-  status: string; // default "none"
+  status: string; // ProtocolStatus enum value, defaults to "none"
   reportId?: string | null;
   reports?: Report[];
   owner: string;

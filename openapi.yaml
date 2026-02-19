@@ -1,8 +1,8 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Protocol Snapshot API
   version: 1.0.0
-  description: |
+  description: >
     Returns generated snapshots for CLOSED protocols.
     Snapshot schema matches protocolSnapshot.json entity definition.
 
@@ -11,17 +11,39 @@ servers:
     description: Local development server
 
 paths:
+
+  /protocols/closed:
+    get:
+      summary: List all closed protocols
+      description: Returns all protocols with status "closed".
+      operationId: listClosedProtocols
+      security:
+        - OAuth2: [protocol.read]
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of closed protocols
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClosedProtocol"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
   /protocols/closed/{id}/snapshot:
     get:
       summary: Get snapshot of a closed protocol
-      description: |
+      description: >
         Returns the generated ProtocolSnapshot for a CLOSED protocol.
-        Fails if protocol is not closed or snapshot does not exist.
+        Returns 404 if the protocol is not closed or the snapshot does not exist.
       operationId: getClosedProtocolSnapshot
       security:
         - OAuth2: [protocol.read]
         - BearerAuth: []
-
       parameters:
         - name: id
           in: path
@@ -29,7 +51,6 @@ paths:
           description: Protocol ID
           schema:
             type: string
-
       responses:
         "200":
           description: Snapshot successfully retrieved
@@ -42,30 +63,46 @@ paths:
                   summary: Example snapshot
                   value:
                     protocolId: "PROT-1001"
-                    powerplantId: "PLANT-01"
+                    powerplantId: "plant-1"
                     protocolBriefcaseId: "BRIEF-01"
                     templateName:
-                      en: "Inspection Template"
-                      de: "Inspektionsvorlage"
-                    name: "Monthly Inspection"
-                    date: 1700000000
-                    time: "14:30"
+                      en: "Monthly Safety Inspection"
+                      de: "Monatliche Sicherheitsinspektion"
+                    name: "Monthly Safety Inspection - January 2024"
+                    date: 1706659200
+                    time: "09:00"
                     status: "closed"
-                    reportId: "REP-9001"
-                    reports: []
-                    owner: "user-123"
-                    topics: []
-
+                    reportId: "REP-1001"
+                    reports:
+                      - reportId: "REP-1001"
+                        variantName: "standard"
+                        fileName: "safety-inspection-jan-2024.pdf"
+                        language: "en"
+                        isOld: false
+                        creationDate: 1706745600
+                    owner: "inspector.mueller"
+                    topics:
+                      - name:
+                          en: "Fire Extinguishers"
+                          de: "Feuerlöscher"
+                        items:
+                          - name:
+                              en: "Extinguisher count verification"
+                              de: "Anzahl Feuerlöscher prüfen"
+                            creatorPublicParticipantId: "participant-001"
+                            data:
+                              value: 12
+                              required: 10
+                              status: "ok"
         "401":
           description: Unauthorized
-
         "403":
           description: Forbidden
-
         "404":
           description: Snapshot not found or protocol not closed
 
 components:
+
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -76,15 +113,145 @@ components:
           tokenUrl: http://localhost:3000/oauth/token
           scopes:
             protocol.read: Read protocol snapshots
-
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
 
   schemas:
+
+    LocalizedString:
+      type: object
+      description: 'Language-keyed string map (e.g. { "en": "...", "de": "..." }).'
+      additionalProperties:
+        type: string
+      example:
+        en: "Monthly Safety Inspection"
+        de: "Monatliche Sicherheitsinspektion"
+
+    ClosedProtocol:
+      type: object
+      description: Metadata of a protocol with status "closed".
+      required:
+        - id
+        - siteId
+        - plantId
+        - level1
+        - name
+        - basedOn
+        - date
+        - owner
+        - status
+      properties:
+        id:
+          type: string
+          description: Unique protocol identifier
+        siteId:
+          type: string
+          description: ID of the site this protocol belongs to
+        plantId:
+          type: string
+          description: ID of the plant this protocol belongs to
+        level1:
+          type: string
+          description: Top-level organizational label
+        name:
+          type: string
+          description: Human-readable protocol name
+        basedOn:
+          type: string
+          description: Template or standard this protocol is based on
+        date:
+          type: string
+          description: ISO 8601 date string (e.g. "2024-01-31")
+        owner:
+          type: string
+          description: Username or ID of the protocol owner
+        status:
+          type: string
+          enum:
+            - closed
+          description: Protocol status
+
+    Report:
+      type: object
+      description: >
+        Report entity matching Report.json entity definition.
+        Represents a generated report file attached to a protocol snapshot.
+      required:
+        - reportId
+        - language
+      properties:
+        reportId:
+          type: string
+          description: Unique report identifier
+        variantName:
+          type: string
+          nullable: true
+          description: Report variant label (e.g. "standard", "detailed")
+        fileName:
+          type: string
+          nullable: true
+          description: Generated file name for download
+        language:
+          type: string
+          description: Language code of the report (e.g. "en", "de")
+        isOld:
+          type: boolean
+          nullable: true
+          description: Whether this report was generated from an older template version
+        creationDate:
+          type: integer
+          nullable: true
+          description: UnixOffset timestamp of report creation
+
+    ProtocolItemSnapshot:
+      type: object
+      description: >
+        Snapshot of a single checklist item within a protocol topic.
+        Matches ProtocolItemSnapshot.json entity definition.
+      required:
+        - name
+      properties:
+        name:
+          allOf:
+            - $ref: "#/components/schemas/LocalizedString"
+          description: Localized name of the checklist item
+        creatorPublicParticipantId:
+          type: string
+          nullable: true
+          description: Public participant ID of the user who filled in this item
+        data:
+          type: object
+          description: >
+            Flexible key-value payload capturing the item's recorded values.
+            Shape depends on the item type (e.g. numeric measurement, boolean check, freetext).
+          additionalProperties: true
+
+    ProtocolTopicSnapshot:
+      type: object
+      description: >
+        Snapshot of a topic (section) within a protocol.
+        Matches ProtocolTopicSnapshot.json entity definition.
+      required:
+        - name
+        - items
+      properties:
+        name:
+          allOf:
+            - $ref: "#/components/schemas/LocalizedString"
+          description: Localized name of the topic
+        items:
+          type: array
+          description: Ordered list of checklist items belonging to this topic
+          items:
+            $ref: "#/components/schemas/ProtocolItemSnapshot"
+
     ProtocolSnapshot:
       type: object
+      description: >
+        Complete computed snapshot of a closed protocol.
+        Matches ProtocolSnapshot.json entity definition.
       required:
         - protocolId
         - powerplantId
@@ -94,66 +261,48 @@ components:
       properties:
         protocolId:
           type: string
-
+          description: ID of the source protocol
         powerplantId:
           type: string
-
+          description: ID of the associated powerplant/plant
         protocolBriefcaseId:
           type: string
           nullable: true
-
+          description: Optional ID of the protocol briefcase grouping
         templateName:
-          $ref: "#/components/schemas/LocalizedString"
-
+          allOf:
+            - $ref: "#/components/schemas/LocalizedString"
+          description: Localized name of the template used to create this protocol
         name:
           type: string
-
+          description: Human-readable name of the protocol
         date:
           type: integer
-          description: UnixOffset timestamp
-
+          nullable: true
+          description: UnixOffset timestamp of the protocol date
         time:
           type: string
-          pattern: "^([0-1][0-9]|[2][0-3]):([0-5][0-9])$"
           nullable: true
-
+          pattern: "^([0-1][0-9]|[2][0-3]):([0-5][0-9])$"
+          description: Time of the protocol in HH:mm format
         status:
           type: string
           default: "none"
-          description: Protocol status enum value
-
+          description: Protocol status enum value (e.g. "closed", "none")
         reportId:
           type: string
           nullable: true
-
+          description: ID of the primary report for this snapshot
         reports:
           type: array
+          description: All generated report files attached to this snapshot
           items:
             $ref: "#/components/schemas/Report"
-
         owner:
           type: string
-
+          description: Username or ID of the protocol owner
         topics:
           type: array
+          description: Ordered list of topic snapshots composing this protocol
           items:
             $ref: "#/components/schemas/ProtocolTopicSnapshot"
-
-    LocalizedString:
-      type: object
-      description: Language-keyed string values
-      additionalProperties:
-        type: string
-      example:
-        en: "Inspection Template"
-        de: "Inspektionsvorlage"
-
-    Report:
-      type: object
-      description: Report entity (structure depends on Report definition)
-      additionalProperties: true
-
-    ProtocolTopicSnapshot:
-      type: object
-      description: Protocol topic snapshot structure (depends on topic definition)
-      additionalProperties: true

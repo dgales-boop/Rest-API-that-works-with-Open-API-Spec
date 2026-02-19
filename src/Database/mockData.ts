@@ -139,8 +139,16 @@ export const closedProtocols: ClosedProtocol[] = [
 ];
 
 /**
- * Snapshot data for closed protocols, matching the OpenAPI ProtocolSnapshot schema.
- * Each snapshot is keyed by the corresponding ClosedProtocol id.
+ * Snapshot data for closed protocols.
+ * Topics and items follow ProtocolTopicSnapshot / ProtocolItemSnapshot entity definitions:
+ *   - topics[].name       : LocalizedString (required)
+ *   - topics[].items      : ProtocolItemSnapshot[] (required)
+ *   - items[].name        : LocalizedString (required)
+ *   - items[].creatorPublicParticipantId : string (optional)
+ *   - items[].data        : Record<string, unknown> (optional, defaults to {})
+ * Reports follow the Report entity definition:
+ *   - reportId, language  : required
+ *   - variantName, fileName, isOld, creationDate : optional
  */
 export const protocolSnapshots: ProtocolSnapshot[] = [
   {
@@ -156,18 +164,55 @@ export const protocolSnapshots: ProtocolSnapshot[] = [
     time: "09:00",
     status: "closed",
     reportId: "REP-1001",
-    reports: [],
+    reports: [
+      {
+        reportId: "REP-1001",
+        variantName: "standard",
+        fileName: "safety-inspection-jan-2024.pdf",
+        language: "en",
+        isOld: false,
+        creationDate: 1706745600,
+      },
+      {
+        reportId: "REP-1001-DE",
+        variantName: "standard",
+        fileName: "sicherheitsinspektion-jan-2024.pdf",
+        language: "de",
+        isOld: false,
+        creationDate: 1706745600,
+      },
+    ],
     owner: "inspector.mueller",
     topics: [
       {
-        topicId: "topic-1",
-        title: { en: "Fire Extinguishers", de: "Feuerlöscher" },
-        result: "pass",
+        name: { en: "Fire Extinguishers", de: "Feuerlöscher" },
+        items: [
+          {
+            name: { en: "Extinguisher count verification", de: "Anzahl Feuerlöscher prüfen" },
+            creatorPublicParticipantId: "participant-001",
+            data: { value: 12, required: 10, status: "ok" },
+          },
+          {
+            name: { en: "Expiry date check", de: "Ablaufdatum prüfen" },
+            creatorPublicParticipantId: "participant-001",
+            data: { allValid: true, nextExpiry: "2025-06", status: "ok" },
+          },
+        ],
       },
       {
-        topicId: "topic-2",
-        title: { en: "Emergency Exits", de: "Notausgänge" },
-        result: "pass",
+        name: { en: "Emergency Exits", de: "Notausgänge" },
+        items: [
+          {
+            name: { en: "Exit signage visible", de: "Notausgangsbeschilderung sichtbar" },
+            creatorPublicParticipantId: "participant-002",
+            data: { status: "ok", count: 6 },
+          },
+          {
+            name: { en: "Exit routes unobstructed", de: "Fluchtwege frei" },
+            creatorPublicParticipantId: "participant-002",
+            data: { status: "ok", obstaclesFound: false },
+          },
+        ],
       },
     ],
   },
@@ -184,13 +229,32 @@ export const protocolSnapshots: ProtocolSnapshot[] = [
     time: "14:30",
     status: "closed",
     reportId: "REP-2001",
-    reports: [],
+    reports: [
+      {
+        reportId: "REP-2001",
+        variantName: "standard",
+        fileName: "equipment-calibration-q1-2024.pdf",
+        language: "en",
+        isOld: false,
+        creationDate: 1711929600,
+      },
+    ],
     owner: "tech.schmidt",
     topics: [
       {
-        topicId: "topic-3",
-        title: { en: "Sensor Accuracy", de: "Sensorgenauigkeit" },
-        result: "pass",
+        name: { en: "Sensor Accuracy", de: "Sensorgenauigkeit" },
+        items: [
+          {
+            name: { en: "Pressure sensor calibration", de: "Drucksensorkalibrierung" },
+            creatorPublicParticipantId: "participant-004",
+            data: { measuredDeviation: 0.02, allowedDeviation: 0.05, status: "ok" },
+          },
+          {
+            name: { en: "Temperature sensor calibration", de: "Temperatursensorkalibrierung" },
+            creatorPublicParticipantId: "participant-004",
+            data: { measuredDeviation: 0.3, allowedDeviation: 0.5, status: "ok" },
+          },
+        ],
       },
     ],
   },
@@ -207,9 +271,29 @@ export const protocolSnapshots: ProtocolSnapshot[] = [
     time: "10:15",
     status: "closed",
     reportId: "REP-3001",
-    reports: [],
+    reports: [
+      {
+        reportId: "REP-3001",
+        variantName: "detailed",
+        fileName: "paint-quality-audit-feb-2024.pdf",
+        language: "en",
+        isOld: false,
+        creationDate: 1709164800,
+      },
+    ],
     owner: "auditor.weber",
-    topics: [],
+    topics: [
+      {
+        name: { en: "Surface Coating Thickness", de: "Schichtdicke Oberflächenbeschichtung" },
+        items: [
+          {
+            name: { en: "Panel A thickness measurement", de: "Schichtdickenmessung Panel A" },
+            creatorPublicParticipantId: "participant-005",
+            data: { measuredMicrons: 82, targetMicrons: 80, tolerance: 5, status: "ok" },
+          },
+        ],
+      },
+    ],
   },
   {
     protocolId: "4",
@@ -228,14 +312,29 @@ export const protocolSnapshots: ProtocolSnapshot[] = [
     owner: "safety.fischer",
     topics: [
       {
-        topicId: "topic-4",
-        title: { en: "Evacuation Time", de: "Evakuierungszeit" },
-        result: "acceptable",
+        name: { en: "Evacuation Procedure", de: "Evakuierungsverfahren" },
+        items: [
+          {
+            name: { en: "Evacuation time measured", de: "Evakuierungszeit gemessen" },
+            creatorPublicParticipantId: "participant-006",
+            data: { durationSeconds: 210, targetSeconds: 240, status: "ok" },
+          },
+          {
+            name: { en: "All staff accounted for", de: "Alle Mitarbeiter erfasst" },
+            creatorPublicParticipantId: "participant-006",
+            data: { headcount: 48, expected: 48, status: "ok" },
+          },
+        ],
       },
       {
-        topicId: "topic-5",
-        title: { en: "Assembly Point", de: "Sammelplatz" },
-        result: "pass",
+        name: { en: "Assembly Point", de: "Sammelplatz" },
+        items: [
+          {
+            name: { en: "Assembly point signage visible", de: "Sammelplatzbeschilderung sichtbar" },
+            creatorPublicParticipantId: "participant-006",
+            data: { status: "ok" },
+          },
+        ],
       },
     ],
   },
@@ -252,8 +351,33 @@ export const protocolSnapshots: ProtocolSnapshot[] = [
     time: "08:00",
     status: "closed",
     reportId: "REP-5001",
-    reports: [],
+    reports: [
+      {
+        reportId: "REP-5001",
+        variantName: "standard",
+        fileName: "electrical-inspection-mar-2024.pdf",
+        language: "en",
+        isOld: false,
+        creationDate: 1710979200,
+      },
+    ],
     owner: "inspector.mueller",
-    topics: [],
+    topics: [
+      {
+        name: { en: "Switchboard Inspection", de: "Schaltschrankinspektion" },
+        items: [
+          {
+            name: { en: "Visual inspection of wiring", de: "Sichtprüfung der Verkabelung" },
+            creatorPublicParticipantId: "participant-001",
+            data: { status: "ok", findingsCount: 0 },
+          },
+          {
+            name: { en: "Circuit breaker function test", de: "Funktionstest Leistungsschalter" },
+            creatorPublicParticipantId: "participant-001",
+            data: { status: "ok", testedCount: 12, failedCount: 0 },
+          },
+        ],
+      },
+    ],
   },
 ];
